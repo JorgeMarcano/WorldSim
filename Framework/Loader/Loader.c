@@ -5,7 +5,7 @@ State* CreateStateInstance()
     return malloc(sizeof(State));
 }
 
-Result FreeStateInstance(State* state)
+Result ReleaseStateInstance(State* state)
 {
     if (state == NULL)
         return ERROR_NULL;
@@ -52,7 +52,7 @@ Result LoadSpace(State* state, SpaceDesc* desc)
 Result LoadObjectAndSpace(State* state, ObjectDesc* descObj, SpaceDesc* descSpace)
 {
     Result result;
-    if (result = LoadObject(state, descObj) == ERROR_NONE)
+    if ((result = LoadObject(state, descObj)) == ERROR_NONE)
         return LoadSpace(state, descSpace);
 
     return result;
@@ -69,16 +69,36 @@ Result LoadPhysics(State* state, UpdateObject objectUpdater, UpdateSpace spaceUp
     return ERROR_NONE;
 }
 
-Result LoadAll(State* state, 
-                ObjectDesc* descObj, 
-                SpaceDesc* descSpace, 
-                UpdateObject objectUpdater, 
+Result LoadAll(State* state,
+                ObjectDesc* descObj,
+                SpaceDesc* descSpace,
+                UpdateObject objectUpdater,
                 UpdateSpace spaceUpdater)
 {
     Result result;
-    if (result = LoadObject(state, descObj) == ERROR_NONE)
-        if (result = LoadSpace(state, descSpace) == ERROR_NONE)
+    if ((result = LoadObject(state, descObj)) == ERROR_NONE)
+        if ((result = LoadSpace(state, descSpace)) == ERROR_NONE)
             return LoadPhysics(state, objectUpdater, spaceUpdater);
 
     return result;
+}
+
+Result LoadInitialState(State* state, InitializerObject objectInit, InitializerSpace spaceInit, Size objectCount, Size spaceCount)
+{
+    if (state == NULL)
+        return ERROR_NULL;
+
+    state->objects = malloc(state->objectSize * objectCount);
+    state->objectCount = objectCount;
+
+    state->spaces = malloc(state->spaceSize * spaceCount);
+    state->spaceCount = spaceCount;
+
+    for (Size i = 0; i < spaceCount; i++)
+        spaceInit(getSpace(i, state->spaces, state->spaceSize), i);
+
+    for (Size i = 0; i < objectCount; i++)
+        objectInit(getObject(i, state->objects, state->objectSize), i, state->spaces, spaceCount);
+
+    return ERROR_NONE;
 }

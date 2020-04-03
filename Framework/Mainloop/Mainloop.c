@@ -1,6 +1,6 @@
 #include "Mainloop.h"
 
-void Mainloop(State* state)
+Result Mainloop(State* state)
 {
     int isRunning = 1;
 
@@ -15,25 +15,25 @@ void Mainloop(State* state)
         //For every object
         for (Size i = 0; i < state->objectCount; i++)
         {
-            currElement = getObject(i, state);
-            currElement = state->objectUpdater(currElement, i, 
-                                                state->objects, 
-                                                state->objectCount, 
-                                                state->spaces,
-                                                state->spaceCount);
-            setObject(currElement, swapObjects, i, state);
+            state->objectUpdater(getObject(i, state->objects, state->objectSize),
+                                    getObject(i, swapObjects, state->objectSize),
+                                    i,
+                                    state->objects,
+                                    state->objectCount,
+                                    state->spaces,
+                                    state->spaceCount);
         }
 
         //For every space element
         for (Size i = 0; i < state->spaceCount; i++)
         {
-            currElement = getSpace(i, state);
-            currElement = state->spaceUpdater(currElement, i, 
-                                                state->objects, 
-                                                state->objectCount, 
-                                                state->spaces,
-                                                state->spaceCount);
-            setSpace(currElement, swapSpaces, i, state);
+            state->spaceUpdater(getSpace(i, state->spaces, state->spaceSize),
+                                    getSpace(i, swapSpaces, state->spaceSize),
+                                    i,
+                                    state->objects,
+                                    state->objectCount,
+                                    state->spaces,
+                                    state->spaceCount);
         }
 
         //Swap both buffers
@@ -57,5 +57,5 @@ void Mainloop(State* state)
     free(swapObjects);
     free(swapSpaces);
 
-    return;
+    return ERROR_NONE;
 }

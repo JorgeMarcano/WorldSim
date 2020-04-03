@@ -4,4 +4,8 @@
 #include "../State/State.h"
 #include "../Error/Error.h"
 
+#include <stdlib.h>
+
+Result Mainloop(State* state);
+
 #endif

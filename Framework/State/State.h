@@ -1,19 +1,24 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "../Error/Error.h"
+#include "../Tools/Tools.h"
+
 typedef unsigned long Size;
 
-typedef void* (*UpdateObject)(void* object, 
+typedef void (*UpdateObject)(void* object,
+                                void* destObj,
                                 Size objectIndex,
-                                void* objects, 
-                                Size objectCount, 
-                                void* spaces, 
+                                void* objects,
+                                Size objectCount,
+                                void* spaces,
                                 Size spaceCount);
-typedef void* (*UpdateSpace)(void* space, 
-                                Size spaceIndex, 
-                                void* objects, 
-                                Size objectCount, 
-                                void* spaces, 
+typedef void (*UpdateSpace)(void* space,
+                                void* destSpace,
+                                Size spaceIndex,
+                                void* objects,
+                                Size objectCount,
+                                void* spaces,
                                 Size spaceCount);
 
 typedef struct ObjectDesc
@@ -44,8 +49,8 @@ typedef struct State
     SpaceDesc*       spaceDesc;
 } State;
 
-void* getSpace(Size index, State* state);
-void* getObject(Size index, State* state);
+void* getSpace(Size index, void* spaces, Size size);
+void* getObject(Size index, void* objects, Size size);
 
 Result setSpace(void* space, void* spaces, Size index, State* state);
 Result setObject(void* object, void* objects, Size index, State* state);
