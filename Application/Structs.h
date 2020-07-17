@@ -14,7 +14,7 @@ typedef struct Object
     int ySpeed;
 } Object;
 
-#define OBJECT_COUNT        10
+#define OBJECT_COUNT        5
 #define SPACE_X_SIZE        10
 #define SPACE_Y_SIZE        10
 #define SPACE_COUNT         SPACE_X_SIZE * SPACE_Y_SIZE

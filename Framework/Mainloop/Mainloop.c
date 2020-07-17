@@ -1,6 +1,6 @@
 #include "Mainloop.h"
 
-Result Mainloop(State* state)
+Result Mainloop(State* state, Logger* logger)
 {
     int isRunning = 1;
 
@@ -46,11 +46,12 @@ Result Mainloop(State* state)
         swapSpaces = currElement;
 
         //Log state
+        LogState(logger, state);
 
         //Update isRunning
         //currently, temporarily simply runs one billion times
         isRunning++;
-        isRunning %= 10000000;
+        isRunning %= 100;
     }
 
     //Free out swap buffers

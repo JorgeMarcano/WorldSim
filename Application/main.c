@@ -2,6 +2,7 @@
 #include "../Framework/Error/Error.h"
 #include "../Framework/Loader/Loader.h"
 #include "../Framework/Mainloop/Mainloop.h"
+#include "../Framework/Logger/Logger.h"
 
 #include "Structs.h"
 
@@ -27,12 +28,16 @@ void SpaceUpdate(void* space,
 Result InitObject(void* object, Size objectIndex, void* spaces, Size spacesSize);
 Result InitSpace(void* space, Size spaceIndex);
 
+char* Printer(void* object, Size objectSize, void* spaces, Size spacesSize);
+
 int main()
 {
     srand(time(0));
 
     //Instantiate State Object
     State* stateInstance = CreateStateInstance();
+
+    Logger* loggerInstance = StartLog("log.log", Printer);
 
     Result result;
 
@@ -60,7 +65,7 @@ int main()
     }
 
     //Start the Mainloop
-    result = Mainloop(stateInstance);
+    result = Mainloop(stateInstance, loggerInstance);
     if(result != ERROR_NONE)
     {
         PrintResultCode(result);
@@ -69,6 +74,7 @@ int main()
     }
 
     ReleaseStateInstance(stateInstance);
+    EndLog(loggerInstance);
 
     return 0;
 }
@@ -117,8 +123,8 @@ void ObjectUpdate(void* object,
     Object* dest = (Object*) destObj;
     Object* src = (Object*) object;
 
-    int currX = src->location->x + src->xSpeed;
-    int currY = src->location->y + src->ySpeed;
+    int currX = (src->location->x + src->xSpeed) % SPACE_X_SIZE;
+    int currY = (src->location->y + src->ySpeed) % SPACE_Y_SIZE;
 
     dest->xSpeed = src->xSpeed;
     dest->ySpeed = src->ySpeed;
@@ -126,4 +132,28 @@ void ObjectUpdate(void* object,
     dest->location = getSpace(currX + currY * SPACE_X_SIZE, spaces, sizeof(Space));
 
     return;
+}
+
+char* Printer(void* object, Size objectSize, void* spaces, Size spacesSize)
+{
+    //Must leave enough space for every "space", for every end of line, one at the end for an extra end of line, and the null
+    Size totalSize = spacesSize * sizeof(char) + SPACE_Y_SIZE + 2;
+    char* text = malloc(totalSize);
+    text[totalSize - 1] = '\0';
+    text[totalSize - 2] = '\n';
+
+    for (int i = 0; i < totalSize - 3; i++)
+        text[i] = 'O';
+
+    for (int i = 0; i < SPACE_Y_SIZE; i++)
+        text[(SPACE_X_SIZE + 1) * i + SPACE_X_SIZE] = '\n';
+
+    Object obj;
+    for (int i = 0; i < objectSize; i++)
+    {
+        obj = ((Object*) object)[i];
+        text[obj.location->y * (SPACE_X_SIZE + 1) + obj.location->x] = 'X';
+    }
+
+    return text;
 }
